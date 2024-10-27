@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tic Tac Toe</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>Tic Tac Toe</h1>
+  <div id="game-mode">
+    <button onclick="setMode('player')">Player vs Player</button>
+    <button onclick="setMode('computer')">Player vs Computer</button>
+  </div>
+  <div id="game-board">
+    <div class="cell" onclick="handleClick(0)"></div>
+    <div class="cell" onclick="handleClick(1)"></div>
+    <div class="cell" onclick="handleClick(2)"></div>
+    <div class="cell" onclick="handleClick(3)"></div>
+    <div class="cell" onclick="handleClick(4)"></div>
+    <div class="cell" onclick="handleClick(5)"></div>
+    <div class="cell" onclick="handleClick(6)"></div>
+    <div class="cell" onclick="handleClick(7)"></div>
+    <div class="cell" onclick="handleClick(8)"></div>
+  </div>
+  <button id="reset" onclick="resetGame()">Restart Game</button>
+  <p id="status"></p>
+  <script src="script.js"></script>
+</body>
+</html>
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: Arial, sans-serif;
+}
+
+h1 {
+  margin-bottom: 20px;
+}
+
+#game-board {
+  display: grid;
+  grid-template-columns: repeat(3, 100px);
+  grid-gap: 5px;
+}
+
+.cell {
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2em;
+  border: 2px solid #333;
+  cursor: pointer;
+}
+
+#game-mode {
+  margin-bottom: 20px;
+}
+
+button {
+  margin: 10px;
+  padding: 10px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+#status {
+  margin-top: 20px;
+  font-size: 1.2em;
+}
+let board = ['', '', '', '', '', '', '', '', ''];
+let currentPlayer = 'X';
+let gameActive = true;
+let gameMode = 'player';
+
+const winPatterns = [
+  [0, 1, 2],
+  [3, 4, 5],
+  [6, 7, 8],
+  [0, 3, 6],
+  [1, 4, 7],
+  [2, 5, 8],
+  [0, 4, 8],
+  [2, 4, 6]
+];
+
+function setMode(mode) {
+  gameMode = mode;
+  resetGame();
+}
+
+function handleClick(index) {
+  if (board[index] !== '' || !gameActive) return;
+
+  board[index] = currentPlayer;
+  document.querySelectorAll('.cell')[index].textContent = currentPlayer;
+  
+  if (checkWin()) {
+    document.getElementById('status').textContent = `${currentPlayer} Wins!`;
+    gameActive = false;
+    return;
+  }
+  
+  if (board.every(cell => cell !== '')) {
+    document.getElementById('status').textContent = "It's a Tie!";
+    gameActive = false;
+    return;
+  }
+
+  currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+  
+  if (gameMode === 'computer' && currentPlayer === 'O') {
+    computerMove();
+  }
+}
+
+function checkWin() {
+  return winPatterns.some(pattern => 
+    pattern.every(index => board[index] === currentPlayer)
+  );
+}
+
+function computerMove() {
+  let availableCells = board.map((cell, index) => cell === '' ? index : null).filter(index => index !== null);
+  let randomIndex = availableCells[Math.floor(Math.random() * availableCells.length)];
+  
+  board[randomIndex] = currentPlayer;
+  document.querySelectorAll('.cell')[randomIndex].textContent = currentPlayer;
+  
+  if (checkWin()) {
+    document.getElementById('status').textContent = `${currentPlayer} Wins!`;
+    gameActive = false;
+  } else if (board.every(cell => cell !== '')) {
+    document.getElementById('status').textContent = "It's a Tie!";
+    gameActive = false;
+  } else {
+    currentPlayer = 'X';
+  }
+}
+
+function resetGame() {
+  board = ['', '', '', '', '', '', '', '', ''];
+  currentPlayer = 'X';
+  gameActive = true;
+  document.getElementById('status').textContent = '';
+  document.querySelectorAll('.cell').forEach(cell => cell.textContent = '');
+}
